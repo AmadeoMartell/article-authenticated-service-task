@@ -1,4 +1,4 @@
-package edu.epam.fop.spring.boot.dbsecurity.config;
+package edu.epam.fop.spring.boot.config;
 
 import edu.epam.fop.spring.boot.entity.Role;
 import edu.epam.fop.spring.boot.entity.User;
@@ -21,9 +21,17 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         Role userRole = roleRepository.findByName("USER")
-                .orElseGet(() -> roleRepository.save(new Role(null, "USER")));
+                .orElseGet(() -> {
+                    Role role = new Role();
+                    role.setName("USER");
+                    return roleRepository.save(role);
+                });
         Role adminRole = roleRepository.findByName("ADMIN")
-                .orElseGet(() -> roleRepository.save(new Role(null, "ADMIN")));
+                .orElseGet(() -> {
+                    Role role = new Role();
+                    role.setName("ADMIN");
+                    return roleRepository.save(role);
+                });
 
         userRepository.findByUsername("user")
                 .orElseGet(() -> {
