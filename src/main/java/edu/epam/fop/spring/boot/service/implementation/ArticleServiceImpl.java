@@ -2,6 +2,8 @@ package edu.epam.fop.spring.boot.service.implementation;
 
 import edu.epam.fop.spring.boot.dto.ArticleDto;
 import edu.epam.fop.spring.boot.entity.Article;
+import edu.epam.fop.spring.boot.exception.ArticleAlreadyExistsException;
+import edu.epam.fop.spring.boot.exception.ArticleNotFoundException;
 import edu.epam.fop.spring.boot.mapper.ArticleMapper;
 import edu.epam.fop.spring.boot.repository.ArticleRepository;
 import edu.epam.fop.spring.boot.service.ArticleService;
@@ -23,7 +25,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleDto getByTitle(String title) {
         Article article = articleRepository.findByTitle(title)
-                .orElseThrow(() -> new IllegalArgumentException("Article not found: " + title));
+                .orElseThrow(() -> new ArticleNotFoundException(title));
         return articleMapper.toDto(article);
     }
 
@@ -32,10 +34,9 @@ public class ArticleServiceImpl implements ArticleService {
     public ArticleDto createArticle(ArticleDto articleDto) {
         String title = articleDto.title();
         if (articleRepository.existsByTitle(title)) {
-            throw new IllegalArgumentException("Article already exists: " + title);
+            throw new ArticleAlreadyExistsException(title);
         }
-        Article entity = articleMapper.toEntity(articleDto);
-        Article saved = articleRepository.save(entity);
+        Article saved = articleRepository.save(articleMapper.toEntity(articleDto));
         return articleMapper.toDto(saved);
     }
 
@@ -43,7 +44,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     public ArticleDto updateArticle(String title, ArticleDto articleDto) {
         Article existing = articleRepository.findByTitle(title)
-                .orElseThrow(() -> new IllegalArgumentException("Article not found: " + title));
+                .orElseThrow(() -> new ArticleNotFoundException(title));
         articleMapper.partialUpdate(articleDto, existing);
         Article saved = articleRepository.save(existing);
         return articleMapper.toDto(saved);
@@ -53,7 +54,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional
     public void deleteByTitle(String title) {
         Article existing = articleRepository.findByTitle(title)
-                .orElseThrow(() -> new IllegalArgumentException("Article not found: " + title));
+                .orElseThrow(() -> new ArticleNotFoundException(title));
         articleRepository.delete(existing);
     }
 
