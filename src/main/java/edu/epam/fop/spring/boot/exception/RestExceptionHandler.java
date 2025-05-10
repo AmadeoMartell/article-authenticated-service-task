@@ -16,4 +16,9 @@ public class RestExceptionHandler {
         return ResponseEntity.status(409).build();
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Void> handleRuntimeException(RuntimeException ex) {
+        return ResponseEntity.status(500).build();
+    }
+
 }
